@@ -1,0 +1,17 @@
+.link-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Adjust this value to control spacing between items */
+}
+
+.link-item-wrapper {
+  flex-basis: calc(50% - 10px); /* 50% width minus half of the gap */
+  max-width: calc(50% - 10px);
+}
+
+@media (max-width: 768px) {
+  .link-item-wrapper {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+}
