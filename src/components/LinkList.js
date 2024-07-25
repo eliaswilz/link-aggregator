@@ -2,7 +2,7 @@ import React from 'react';
 import LinkItem from './LinkItem';
 import './LinkList.css';
 
-function LinkList({ links, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen }) {
+function LinkList({ links, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen, isAdmin }) {
   if (!links || links.length === 0) {
     return <div className="text-center p-4">No links available</div>;
   }
@@ -17,6 +17,7 @@ function LinkList({ links, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen 
             onDelete={onDelete}
             categoryColorMap={categoryColorMap}
             onLinkOpen={onLinkOpen}
+            isAdmin={isAdmin}
           />
         </div>
       ))}

@@ -1,17 +1,34 @@
+// src/components/Sidebar.js
 import React, { useState } from 'react';
+import Login from './Login';
+import { logout } from './Auth';
 
-const colorNames = {
-  '#065535': 'Forest',
-  '#bada55': 'Olive',
-  '#ffd079': 'Beehive',
-  '#ff8d79': 'Peach',
-  '#ffb8ac': 'Rose'
-};
-
-function Sidebar({ categories, selectedCategories, setSelectedCategories, addCategory, deleteCategory, categoryColorMap, changeCategoryColor }) {
+function Sidebar({
+  categories,
+  selectedCategories,
+  setSelectedCategories,
+  addCategory,
+  deleteCategory,
+  categoryColorMap,
+  changeCategoryColor,
+  availableColors,
+  onAdminStatusChange,
+  isAdmin
+}) {
+  const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleLoginSuccess = () => {
+    onAdminStatusChange(true);
+    setIsLoginFormVisible(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    onAdminStatusChange(false);
+  };
 
   const toggleCategory = (category) => {
     setSelectedCategories(prev =>
@@ -31,13 +48,13 @@ function Sidebar({ categories, selectedCategories, setSelectedCategories, addCat
   };
 
   return (
-    <div className="w-64 bg-white h-screen overflow-y-auto">
+    <div className="w-64 bg-white h-screen overflow-y-auto flex flex-col">
       <div className="p-4 border-b border-gray-200">
         <a href="/">
           <img src="/Logo.png" alt="Reds Logo" className="h-8 w-auto" />
         </a>
       </div>
-      <div className="p-4">
+      <div className="p-4 flex-grow">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-[#1a1c1a]">Categories</h2>
           <button
@@ -76,7 +93,7 @@ function Sidebar({ categories, selectedCategories, setSelectedCategories, addCat
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </button>
-              {isExpanded && (
+              {isExpanded && isAdmin && (
                 <>
                   <select
                     value={categoryColorMap[category]}
@@ -84,7 +101,7 @@ function Sidebar({ categories, selectedCategories, setSelectedCategories, addCat
                     className="ml-2 p-1 border border-gray-300 rounded"
                     style={{ backgroundColor: categoryColorMap[category], color: '#ffffff' }}
                   >
-                    {Object.entries(colorNames).map(([hex, name]) => (
+                    {Object.entries(availableColors).map(([name, hex]) => (
                       <option key={hex} value={hex} style={{ backgroundColor: hex, color: '#000000' }}>
                         {name}
                       </option>
@@ -102,33 +119,54 @@ function Sidebar({ categories, selectedCategories, setSelectedCategories, addCat
             </li>
           ))}
         </ul>
-        <div className="mt-4">
-          {isAddingCategory ? (
-            <form onSubmit={handleAddCategory} className="relative">
-              <input
-                type="text"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="New category"
-                className="w-full py-2 px-3 pr-8 border border-gray-300 focus:outline-none focus:border-[#1a1c1a] text-[#1a1c1a]"
-                autoFocus
-              />
+        {isAdmin && (
+          <div className="mt-4">
+            {isAddingCategory ? (
+              <form onSubmit={handleAddCategory} className="relative">
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="New category"
+                  className="w-full py-2 px-3 pr-8 border border-gray-300 focus:outline-none focus:border-[#1a1c1a] text-[#1a1c1a]"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#1a1c1a]"
+                >
+                  +
+                </button>
+              </form>
+            ) : (
               <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[#1a1c1a]"
+                onClick={() => setIsAddingCategory(true)}
+                className="w-full py-2 px-3 text-[#1a1c1a] border border-[#1a1c1a] hover:bg-gray-100 text-left"
               >
-                +
+                + Add new category
               </button>
-            </form>
-          ) : (
-            <button
-              onClick={() => setIsAddingCategory(true)}
-              className="w-full py-2 px-3 text-[#1a1c1a] border border-[#1a1c1a] hover:bg-gray-100 text-left"
-            >
-              + Add new category
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="mt-auto p-4">
+        {isAdmin ? (
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+          >
+            Logout
+          </button>
+        ) : isLoginFormVisible ? (
+          <Login onLoginSuccess={handleLoginSuccess} />
+        ) : (
+          <button
+            onClick={() => setIsLoginFormVisible(true)}
+            className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            Login
+          </button>
+        )}
       </div>
     </div>
   );
