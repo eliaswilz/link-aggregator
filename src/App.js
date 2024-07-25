@@ -1,7 +1,9 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import LinkForm from './components/LinkForm';
 import LinkList from './components/LinkList';
 import Sidebar from './components/Sidebar';
+import { getAdminData } from './components/Auth';
 import './App.css';
 
 const categoryColors = {
@@ -19,6 +21,7 @@ function App() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [emptyCategory, setEmptyCategory] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -42,9 +45,6 @@ function App() {
           });
           setCategoryColorMap(initialColorMap);
         }
-        console.log("Loaded links:", links);
-        console.log("Loaded categories:", categories);
-        console.log("Loaded categoryColorMap:", categoryColorMap);
         setIsLoaded(true);
       } catch (error) {
         console.error('Error loading initial data:', error);
@@ -53,6 +53,20 @@ function App() {
     };
 
     loadInitialData();
+
+    const checkAdminStatus = async () => {
+      try {
+        await getAdminData();
+        setIsAdmin(true);
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      checkAdminStatus();
+    }
   }, []);
 
   useEffect(() => {
@@ -152,6 +166,10 @@ function App() {
     );
   };
 
+  const handleAdminStatusChange = (status) => {
+    setIsAdmin(status);
+  };
+
   const filteredLinks = selectedCategories.length === 0
     ? links
     : links.filter(link =>
@@ -174,17 +192,20 @@ function App() {
           categoryColorMap={categoryColorMap}
           changeCategoryColor={changeCategoryColor}
           availableColors={categoryColors}
+          onAdminStatusChange={handleAdminStatusChange}
+          isAdmin={isAdmin}
         />
       </div>
       <div className="flex-1 flex flex-col">
         <div className="flex-1 p-8 overflow-y-auto">
-          <LinkForm addLink={addLink} categories={categories} />
+          {isAdmin && <LinkForm addLink={addLink} categories={categories} />}
           <LinkList
             links={filteredLinks}
             onMarkAsRead={markAsRead}
             onDelete={deleteLink}
             categoryColorMap={categoryColorMap}
             onLinkOpen={handleLinkOpen}
+            isAdmin={isAdmin}
           />
         </div>
       </div>

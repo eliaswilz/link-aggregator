@@ -1,7 +1,7 @@
 import React from 'react';
 import './LinkItem.css';
 
-function LinkItem({ link, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen }) {
+function LinkItem({ link, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen, isAdmin }) {
   const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -15,7 +15,6 @@ function LinkItem({ link, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen }
   };
 
   const handleLinkOpen = (e) => {
-    // Call the onLinkOpen function to update the open count
     onLinkOpen(link.id);
   };
 
@@ -31,21 +30,25 @@ function LinkItem({ link, onMarkAsRead, onDelete, categoryColorMap, onLinkOpen }
       rel="noopener noreferrer"
       className={`block h-full p-4 border ${link.isRead ? 'bg-gray-100' : 'bg-white'} border-gray-200 rounded-lg shadow-md relative hover:shadow-lg transition-shadow duration-300`}
       onClick={handleLinkOpen}
-    >
-      <button
-        onClick={handleDelete}
-        className="absolute top-2 right-2 text-gray-500 hover:text-red-500 z-10"
       >
-        ×
-      </button>
-      <button
-        onClick={handleMarkAsRead}
-        className={`absolute top-2 right-8 w-6 h-6 rounded-full flex items-center justify-center z-10 ${
-          link.isRead ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-        }`}
-      >
-        ✓
-      </button>
+      {isAdmin && (
+        <>
+          <button
+            onClick={handleDelete}
+            className="absolute top-2 right-2 text-gray-500 hover:text-red-500 z-10"
+          >
+            ×
+          </button>
+          <button
+            onClick={handleMarkAsRead}
+            className={`absolute top-2 right-8 w-6 h-6 rounded-full flex items-center justify-center z-10 ${
+              link.isRead ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+            }`}
+          >
+            ✓
+          </button>
+        </>
+      )}
       <div className="link-content">
         <h3 className="text-xl font-semibold mb-2 pr-16 text-[#1a1c1a]">
           {link.title || link.url}
